@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="connector-token" content="__CONNECTOR_TOKEN__">
+  <title>内容运营数据同步工具</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header><span class="eyebrow">LOCAL · PRIVATE · USER CONTROLLED</span><h1>内容运营数据同步工具</h1><p>你的账号由你登录，数据只保存在这台电脑。</p></header>
+    <section class="status-grid">
+      <article><span>专属浏览器</span><strong id="browserState">未连接</strong></article>
+      <article><span>当前账号</span><strong id="accountState">未确认</strong></article>
+      <article><span>本地笔记</span><strong id="noteCount">0</strong></article>
+      <article><span>最近同步</span><strong id="lastSync">暂无</strong></article>
+    </section>
+    <section class="panel"><h2>第一次使用</h2><ol><li>启动专属浏览器，在浏览器里由你本人完成登录或验证码。</li><li>回到这里检查账号，确认显示的是你自己的账号。</li><li>打开对应后台页面，再点击需要的同步按钮。</li><li>完成后导出数据包，交给内容运营 Skill Public V1。</li></ol></section>
+    <section class="panel actions"><h2>操作</h2>
+      <button data-action="browser">启动专属浏览器</button><button data-action="inspect">检查登录账号</button>
+      <button id="confirmButton" data-action="confirm" disabled>确认并绑定此账号</button>
+      <button data-action="account">同步账号信息</button><button data-action="notes">同步历史笔记</button>
+      <button data-action="single-note">同步当前笔记</button><button data-action="stage">同步阶段数据</button>
+      <button data-action="data">查看本地数据</button><button class="primary" data-action="export">导出给内容运营 Skill</button>
+    </section>
+    <section class="panel"><h2>结果</h2><div id="notice" class="notice">等待操作</div><pre id="output"></pre></section>
+    <footer>不会收集密码 · 不会导出 Cookie 或 Token · 不处理验证码 · 不自动发布或互动</footer>
+  </main><script src="/app.js"></script>
+</body></html>
