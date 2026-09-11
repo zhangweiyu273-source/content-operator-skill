@@ -5,7 +5,7 @@ const test = require('node:test');
 const { zipEntryNames } = require('../scripts/acceptance_windows');
 
 test('final portable archive contains launcher and no private workspace paths', t => {
-  const zip = path.join(__dirname, '..', 'dist', 'content-operator-local-data-connector-windows-x64-v1.0.0-rc.4.zip');
+  const zip = path.join(__dirname, '..', 'dist', 'content-operator-local-data-connector-windows-x64-v1.0.0.zip');
   if (!fs.existsSync(zip)) return t.skip('portable artifact must be built first');
   const names = zipEntryNames(fs.readFileSync(zip));
   assert.ok(names.some(name => name.endsWith('/启动内容运营数据同步工具.cmd')));

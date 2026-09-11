@@ -5,7 +5,7 @@ const { createZip } = require('../exporters/zip');
 
 const root = path.resolve(__dirname, '..');
 const distRoot = path.join(root, 'dist');
-const version = '1.0.0-rc.4';
+const version = '1.0.0';
 const packageName = `content-operator-local-data-connector-windows-x64-v${version}`;
 const packageRoot = path.join(distRoot, packageName);
 const sourceDirectories = ['app', 'browser', 'collectors', 'exporters', 'parsers', 'storage', 'schemas', 'docs'];
