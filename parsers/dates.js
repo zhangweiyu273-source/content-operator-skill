@@ -6,7 +6,8 @@ function normalizeDate(value) {
   const [, year, month, day, hour = '00', minute = '00', second = '00'] = match;
   const normalized = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour.padStart(2, '0')}:${minute}:${second}+08:00`;
   const parsed = new Date(normalized);
-  if (Number.isNaN(parsed.valueOf()) || parsed.getUTCMonth() + 1 !== Number(month) || parsed.getUTCDate() !== Number(day)) {
+  const calendarCheck = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (Number.isNaN(parsed.valueOf()) || calendarCheck.getUTCFullYear() !== Number(year) || calendarCheck.getUTCMonth() + 1 !== Number(month) || calendarCheck.getUTCDate() !== Number(day)) {
     throw new Error(`DATE_VALUE_INVALID:${value}`);
   }
   return parsed.toISOString();

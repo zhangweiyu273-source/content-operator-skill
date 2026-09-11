@@ -87,7 +87,7 @@ async function collectNotes(page, { maxRounds = 20, maxItems = 200, stableRounds
   return {
     data: [...byId.values()].slice(0, maxItems),
     status: errors.length ? 'ATTENTION' : 'PASS',
-    errors,
+    errors: [...new Map(errors.map(error => [JSON.stringify(error), error])).values()],
     limit_reached: byId.size >= maxItems,
   };
 }

@@ -7,8 +7,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node app/server.js",
-    "check": "node --test",
-    "health": "node app/cli.js health"
+    "check": "node --test && node scripts/security_audit.js",
+    "health": "node app/cli.js health",
+    "backup": "node app/cli.js backup"
   },
   "engines": {
     "node": ">=24.0.0"
