@@ -87,7 +87,7 @@
 
 - `content-operator-skill-public-v1.zip`
 - `content-operator-local-data-connector-windows-x64-v1.0.0.zip`
-- `内容运营Skill_使用指南.md`
+- `content-operator-skill-user-guide.md`
 
 Windows Connector 的固定 SHA256：
 
