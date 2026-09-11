@@ -13,9 +13,16 @@ test('stops for captcha, risk, permission and schema changes', async () => {
     const page = { evaluate: async () => ({ checks: { [code]: true }, structureVisible: true }) };
     await assert.rejects(assertPageSafe(page, 'notes'), error => error.code === code && error.details.USER_ACTION_REQUIRED === 'YES');
   }
-  const changed = { evaluate: async () => ({ checks: {}, structureVisible: false }) };
+  const changed = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/new/note-manager' }) };
   await assert.rejects(assertPageSafe(changed, 'notes'), error => error.code === 'PAGE_SCHEMA_CHANGED' && error.details.PAGE_SCHEMA_CHANGED === 'YES');
   await assert.doesNotReject(assertPageSafe({ evaluate: async () => ({ checks: {}, structureVisible: true }) }, 'notes'));
+});
+
+test('distinguishes a wrong page from a changed page schema', async () => {
+  const home = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/new/home' }) };
+  await assert.rejects(assertPageSafe(home, 'single-note'), error => error.code === 'CURRENT_NOTE_NOT_OPEN' && error.syncResult === 'ABORTED');
+  const unknownDetail = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/new/note-data/123' }) };
+  await assert.rejects(assertPageSafe(unknownDetail, 'single-note'), error => error.code === 'PAGE_SCHEMA_CHANGED' && error.syncResult === 'ATTENTION');
 });
 
 test('audit records user-action stops as ABORTED', async t => {

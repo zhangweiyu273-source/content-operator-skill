@@ -31,6 +31,18 @@ async function assertPageSafe(page, kind = 'identity') {
     throw error;
   }
   if (!result.structureVisible) {
+    let pathname = '';
+    try { pathname = new URL(result.url).pathname; } catch {}
+    const wrongPage =
+      kind === 'single-note' && ['/new/home', '/new/note-manager'].includes(pathname) ? ['CURRENT_NOTE_NOT_OPEN', '请先在专属浏览器的笔记管理页打开一篇笔记的数据详情，再点击“同步当前笔记”。'] :
+      kind === 'notes' && pathname !== '/new/note-manager' ? ['NOTE_MANAGER_NOT_OPEN', '请先在专属浏览器中打开“笔记管理”，再点击“同步历史笔记”。'] :
+      kind === 'account' && pathname !== '/new/home' ? ['ACCOUNT_HOME_NOT_OPEN', '请先在专属浏览器中打开“账号首页”，再点击“同步账号信息”。'] : null;
+    if (wrongPage) {
+      const error = new Error(wrongPage[1]);
+      error.code = wrongPage[0]; error.syncResult = 'ABORTED';
+      error.details = { STOP: 'YES', USER_ACTION_REQUIRED: 'YES', reason: wrongPage[0], collector: kind };
+      throw error;
+    }
     const error = new Error('无法确认当前页面结构，请检查页面是否正确或等待适配更新。');
     error.code = 'PAGE_SCHEMA_CHANGED'; error.syncResult = 'ATTENTION';
     error.details = { STOP: 'YES', USER_ACTION_REQUIRED: 'YES', PAGE_SCHEMA_CHANGED: 'YES', collector: kind };
