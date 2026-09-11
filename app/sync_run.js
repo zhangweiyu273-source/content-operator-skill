@@ -12,7 +12,7 @@ async function recordedSync(repository, { accountId, collector, pageUrl }, opera
     });
     return { sync_run_id: syncRunId, ...outcome };
   } catch (error) {
-    repository.finishSync(syncRunId, { result: 'FAIL', errorCount: 1, details: { error_code: error.code || error.message } });
+    repository.finishSync(syncRunId, { result: error.syncResult || 'FAIL', errorCount: 1, details: { error_code: error.code || error.message } });
     throw error;
   }
 }

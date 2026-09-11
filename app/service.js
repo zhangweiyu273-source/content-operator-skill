@@ -8,6 +8,7 @@ const { collectNotes } = require('../collectors/notes');
 const { collectSingleNote } = require('../collectors/single_note');
 const { collectStageSnapshot } = require('../collectors/stage_snapshot');
 const { sanitizePageUrl } = require('../collectors/page_helpers');
+const { assertPageSafe } = require('../collectors/page_guard');
 const { exportPublicV1 } = require('../exporters/public_v1');
 const { LocalDatabase } = require('../storage/database');
 const { bindIdentity, readIdentity, verifyIdentity } = require('../storage/identity_store');
@@ -33,7 +34,11 @@ class ConnectorService {
   }
 
   async inspectIdentity() {
-    return this.withPage((page, target) => collectIdentity(page).then(candidate => ({ candidate, page_url: sanitizePageUrl(target.url) })));
+    return this.withPage(async (page, target) => {
+      await assertPageSafe(page, 'identity');
+      const candidate = await collectIdentity(page);
+      return { candidate, page_url: sanitizePageUrl(target.url) };
+    });
   }
 
   async confirmIdentity(expectedAccountId) {
@@ -50,6 +55,7 @@ class ConnectorService {
         const error = new Error(verification.reason === 'ACCOUNT_MISMATCH' ? '当前登录账号与本地账号档案不一致，请确认后再同步。' : '请先检查并确认当前账号。');
         error.code = verification.reason;
         error.details = verification;
+        error.syncResult = 'ABORTED';
         throw error;
       }
       return operation(page, target, verification.account);
@@ -63,6 +69,7 @@ class ConnectorService {
     if (!collectors[kind]) throw Object.assign(new Error('未知同步类型。'), { code: 'COLLECTOR_UNKNOWN' });
     const bound = readIdentity(this.workspace.identity);
     return recordedSync(this.repository, { accountId: bound?.account_id || null, collector: kind }, async syncRunId => this.verifiedPage(async (page, target, account) => {
+      await assertPageSafe(page, kind);
       const collected = await collectors[kind](page);
       if (kind === 'account') {
         collected.data.account_id = account.account_id;
