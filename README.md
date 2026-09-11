@@ -1,37 +1,55 @@
 # 内容运营本地数据同步工具
 
-Content Operator Local Data Connector 是内容运营 Skill Public V1 的可选本地数据输入连接器，定位为用户主动操作的个人账号数据整理与同步工具。
+这是内容运营 Skill Public V1 的可选本地数据连接器。它在你的 Windows 电脑上运行，由你启动专属浏览器、登录自己的账号并主动同步自己有权查看的数据。Connector 只做 READ → NORMALIZE → STORE → EXPORT，不分析定位、不写内容、不自动运营。
 
-当前仅完成 PHASE 0：环境核查、项目隔离和安全边界设计。此目录尚无可运行应用，不支持登录、采集、数据库或导出。没有启动浏览器、安装依赖或提前打包。须收到下一条指令才进入 PHASE 1。
+## 普通用户使用流程
 
-## 隐私与边界
+1. 双击便携包里的 `启动内容运营数据同步工具.cmd`。
+2. 浏览器打开本地界面；点击「启动专属浏览器」。
+3. 在专属 Edge 窗口中，由你本人完成扫码、密码输入和验证码。
+4. 回到工具，点击「检查登录账号」，核对昵称和账号 ID，再点击「确认并绑定此账号」。
+5. 在专属浏览器打开相应后台页面，按需同步账号信息、历史笔记、当前笔记或阶段数据。
+6. 点击「查看本地数据」检查结果，再点击「导出给内容运营 Skill」。
+7. 在 `workspace/exports/content_operator_bundle.zip` 找到数据包，交给 Public Skill。
 
-本工具默认在用户自己的电脑本地运行。用户本人在浏览器中完成账号登录。工具不会要求用户向开发者提供账号密码。账号密码不会交给工具；验证码由用户自己处理。
+数据页面没有展示的字段会保持 `null`。标题、日期或数字异常会显示 ATTENTION；验证码、风控、权限不足、账号变化和页面结构变化会停止相应同步并要求人工处理。
 
-本工具不会将 Cookie、登录令牌、浏览器 Profile 自动上传。数据默认保存于用户自己的本地工作区。无服务器、云数据库、用户账号系统或 AI API 依赖。
+详细说明见 [第一次使用](docs/01_第一次使用.md)、[登录自己的账号](docs/02_登录自己的账号.md)、[同步账号数据](docs/03_同步账号数据.md)、[导出给 Skill](docs/04_导出给Skill.md) 和 [常见问题](docs/05_常见问题.md)。
 
-允许用户本人启动专属浏览器、手动登录及扫码，浏览器自行维持本地登录状态；用户主动同步时，只读取当前账号有权限且页面已经正常展示的数据，整理后保存本机，未来导出 JSON / CSV / XLSX 给 Public Skill。
+## 隐私说明
 
-禁止获取或记录密码、自动填写密码、密码上传、Cookie/Token 导出分享或上传、验证码自动处理或绕过、登录风控绕过、指纹伪装、反检测、stealth、代理池、IP 轮换、高频抓取、批量账号、养号、自动点赞/评论/关注/私信/发布，以及越权访问。
+本工具默认在用户自己的电脑本地运行。用户本人在浏览器中完成账号登录。工具不会要求用户向开发者提供账号密码，也不会获取、保存或自动填写密码。
 
-验证码、登录异常、风控、权限不足或页面结构异常必须 STOP + USER_ACTION_REQUIRED；页面结构变化同时标记 PAGE_SCHEMA_CHANGED。账号不一致时终止同步，不得将不同账号的数据合并。
+浏览器登录状态只由 Edge 保存在本项目 `workspace/browser_profile`。工具不会导出或上传 Cookie、登录令牌、浏览器 Profile；没有服务器、云数据库、用户账号系统或 AI API。
 
-## 目录与隔离
+工具不处理或绕过验证码，不绕过登录风控和访问权限，不使用 stealth、反检测、指纹伪装、代理池或 IP 轮换；不自动点赞、评论、关注、私信或发布；不支持批量账号或养号。
 
-- `app/`：未来本地 UI 与一次性同步流程。
-- `browser/`：未来专属浏览器生命周期；不得读取日常浏览器 Profile。
-- `collectors/selectors/`：未来只读 Collector 及集中 selectors。
-- `parsers/`、`schemas/`：未来标准化与验证；本阶段仅保存接口参考。
-- `storage/`、`exporters/`：未来事务存储及运营数据白名单导出。
-- `tests/`、`examples/`：未来测试与合成示例；当前无账号样本。
-- `docs/`：本阶段检查报告、安全边界、接口审阅和阶段约束。
-- `workspace_template/`：仅说明，不放入任何真实数据或 Profile。
-- `workspace/`：本地私有数据根目录，已被 Git 忽略。
+每次同步前重新核对账号 ID。账号不同会中止，不能把两个账号的数据写进同一工作区。
 
-固定预留：`workspace/browser_profile/`、`workspace/user_data/`、`workspace/snapshots/`、`workspace/exports/`。数据库及账号身份文件仅在后续阶段实现；当前目录均为空。
+## 数据位置与删除
 
-本项目有独立 `.git`。父工作目录的 `.git/info/exclude` 仅添加本项目目录忽略规则，不修改父项目受版本控制文件。Public Skill 基线 ZIP 保持原状，仅从中读取 README 接口说明和 Schema。
+所有私有内容位于 `workspace`：
 
-删除本地数据：未来先关闭工具和专属浏览器，再删除本项目的 `workspace` 文件夹。此操作会同时删除本地登录状态、已同步数据和导出文件；另行保存的备份需用户自行删除。不要删除日常浏览器目录。
+- `account_identity.json`：用户确认的账号身份。
+- `content_operator.db`：结构化数据与同步记录。
+- `browser_profile/`：专属浏览器本地登录状态。
+- `snapshots/`：按运行追加的历史快照。
+- `exports/`：给 Public Skill 的输出。
+- `backups/`：用户主动创建的本地数据库备份。
 
-详见 [PHASE 0 报告](docs/PHASE_0_REPORT.md)、[安全架构](docs/SECURITY_BOUNDARIES.md)、[接口审阅](docs/BASELINE_INTERFACE_REVIEW.md) 和 [阶段计划](docs/PHASE_PLAN.md)。
+关闭工具和专属浏览器后，删除整个 `workspace` 文件夹即可移除本工具的本地数据和专属登录状态。另行复制出去的数据包或备份需在对应位置单独删除。不要删除日常 Edge Profile。
+
+## 开发与检查
+
+要求 Windows 11 x64、Microsoft Edge 和 Node.js 24+。源码模式运行：
+
+```powershell
+npm start
+npm run check
+npm run health
+npm run backup
+```
+
+本地服务仅监听 `127.0.0.1:31876`，状态修改接口需要当前启动实例的随机动作令牌。SQLite 支持 schema migration、事务回滚、重复保护、健康检查和在线备份。导出 ZIP 使用固定运营数据白名单。
+
+当前真实平台页面结构仍需用户登录后验收；无法确认结构时工具返回 `PAGE_SCHEMA_CHANGED` 并停止 Collector。
