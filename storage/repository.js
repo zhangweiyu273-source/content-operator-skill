@@ -84,6 +84,39 @@ class Repository {
       return { note_id: note.note_id, snapshot_time: time };
     });
   }
+
+  saveStageSnapshot(accountId, snapshot) {
+    const time = snapshot.snapshot_time || new Date().toISOString();
+    return this.database.transaction(db => {
+      db.prepare(`INSERT INTO account_snapshots(
+        account_id, snapshot_time, period, followers, note_count, views, impressions, profile_visits, followers_gain, data_json, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(accountId, time, snapshot.period ?? null, snapshot.followers ?? null, snapshot.note_count ?? null,
+          snapshot.views ?? null, snapshot.impressions ?? null, snapshot.profile_visits ?? null,
+          snapshot.followers_gain ?? null, JSON.stringify(snapshot), time);
+      return { account_id: accountId, snapshot_time: time, period: snapshot.period ?? null };
+    });
+  }
+
+  startSync({ syncRunId, accountId = null, collector, pageUrl = null, startTime = new Date().toISOString() }) {
+    this.database.db.prepare(`INSERT INTO sync_runs(
+      sync_run_id, start_time, account_id, collector, page_url, result
+    ) VALUES (?, ?, ?, ?, ?, 'RUNNING')`).run(syncRunId, startTime, accountId, collector, pageUrl);
+    return syncRunId;
+  }
+
+  finishSync(syncRunId, { result, itemCount = 0, errorCount = 0, details = {}, endTime = new Date().toISOString() }) {
+    if (!['PASS', 'ATTENTION', 'FAIL', 'ABORTED'].includes(result)) throw new Error('SYNC_RESULT_INVALID');
+    this.database.db.prepare(`UPDATE sync_runs SET end_time=?, result=?, item_count=?, error_count=?, details_json=?
+      WHERE sync_run_id=?`).run(endTime, result, itemCount, errorCount, JSON.stringify(details), syncRunId);
+  }
+
+  addSourcePage({ syncRunId, pageUrl = null, pageKind, capturedAt = new Date().toISOString(), structureFingerprint = null, evidence = {} }) {
+    const result = this.database.db.prepare(`INSERT INTO source_pages(
+      sync_run_id, page_url, page_kind, captured_at, structure_fingerprint, evidence_json
+    ) VALUES (?, ?, ?, ?, ?, ?)`).run(syncRunId, pageUrl, pageKind, capturedAt, structureFingerprint, JSON.stringify(evidence));
+    return Number(result.lastInsertRowid);
+  }
 }
 
 module.exports = { Repository };
