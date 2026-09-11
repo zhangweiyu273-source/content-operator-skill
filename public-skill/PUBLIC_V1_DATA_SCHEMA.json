@@ -1,0 +1,71 @@
+{
+  "version": "public-v1",
+  "account_profile": {
+    "account_name": "",
+    "source_channel": "",
+    "current_positioning": "",
+    "target_audience": [],
+    "audience_problems": [],
+    "content_pillars": [],
+    "commercial_goal": "",
+    "primary_conversion_action": "",
+    "creator_advantages": [],
+    "real_experience_assets": [],
+    "prohibited_claims": [],
+    "style_profile": {
+      "tone": [],
+      "sentence_style": [],
+      "emoji_level": "",
+      "preferred_openings": [],
+      "preferred_structures": [],
+      "disliked_patterns": []
+    },
+    "content_constraints": [],
+    "updated_at": ""
+  },
+  "note_record": {
+    "note_id": "",
+    "note_url": "",
+    "publish_time": "",
+    "snapshot_time": "",
+    "note_age_hours": null,
+    "title": "",
+    "cover_copy": "",
+    "body": "",
+    "topic": "",
+    "content_pillar": "",
+    "topic_mode": "",
+    "metrics": {
+      "impressions": null,
+      "views": null,
+      "clicks": null,
+      "likes": null,
+      "saves": null,
+      "comments": null,
+      "follows": null,
+      "profile_visits": null,
+      "dms": null,
+      "leads": null
+    },
+    "evidence": {
+      "source_type": "",
+      "source_file": "",
+      "confidence": ""
+    }
+  },
+  "topic_pool_item": {
+    "id": "",
+    "created_at": "",
+    "topic": "",
+    "topic_mode": "",
+    "content_pillar": "",
+    "target_audience": "",
+    "user_problem": "",
+    "evidence": [],
+    "status": "IDEA",
+    "score": 0,
+    "last_used_at": "",
+    "related_note_ids": [],
+    "review_result": ""
+  }
+}

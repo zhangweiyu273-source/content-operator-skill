@@ -1,0 +1,57 @@
+{
+  "account_profile": {
+    "account_name": "示例账号",
+    "source_channel": "内容平台",
+    "current_positioning": "AI × 教师效率",
+    "target_audience": [
+      "一线老师",
+      "教培从业者"
+    ],
+    "audience_problems": [
+      "课后反馈耗时",
+      "重复整理资料",
+      "不知道如何把AI用于真实工作"
+    ],
+    "content_pillars": [
+      "真实工作痛点",
+      "AI解决方案",
+      "工具开发过程"
+    ],
+    "commercial_goal": "示例：建立专业认知并获取精准咨询",
+    "primary_conversion_action": "私信咨询",
+    "creator_advantages": [
+      "真实项目经验"
+    ],
+    "real_experience_assets": [
+      "开发和使用效率工具的真实过程"
+    ],
+    "prohibited_claims": [
+      "不虚构收益",
+      "不伪造经历"
+    ],
+    "style_profile": {
+      "tone": [
+        "口语",
+        "真实"
+      ],
+      "sentence_style": [
+        "短句",
+        "问题切入"
+      ],
+      "emoji_level": "LOW_TO_MEDIUM",
+      "preferred_openings": [
+        "真实痛点",
+        "具体场景"
+      ],
+      "preferred_structures": [
+        "吐槽/问题 → 解决过程 → 结果/方法"
+      ],
+      "disliked_patterns": [
+        "空泛鸡汤",
+        "AI味过重"
+      ]
+    },
+    "content_constraints": [],
+    "updated_at": "EXAMPLE_ONLY"
+  }
+}
