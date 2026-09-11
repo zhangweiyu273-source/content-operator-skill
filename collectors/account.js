@@ -7,16 +7,19 @@ function accountExpression() {
   return `(() => {
     ${extractionPrelude(selectors.account)}
     const labelValue = (labels) => {
-      const nodes = Array.from(document.querySelectorAll('body *'));
+      const metricRoot = SELECTORS.metricsRoot.map(selector => document.querySelector(selector)).find(Boolean);
+      const nodes = Array.from((metricRoot || document.body).querySelectorAll('*'));
+      if (metricRoot) nodes.unshift(metricRoot);
       for (const node of nodes) {
         if (node.children.length > 4) continue;
         const text = (node.innerText || '').replace(/\\s+/g, ' ').trim();
         if (!text || text.length > 80) continue;
         for (const label of labels) {
-          const escaped = label.replace(/[.*+?^\${}()|[\\]\\]/g, '\\$&');
-          const direct = text.match(new RegExp('(?:^|\\s)' + escaped + '[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)(?:\\s|$)'));
-          const reverse = text.match(new RegExp('(?:^|\\s)([0-9.,]+(?:万|亿|[kKmM])?)[：:\\s]*' + escaped + '(?:\\s|$)'));
-          if (direct || reverse) return (direct || reverse)[1];
+          const index = text.indexOf(label);
+          if (index < 0) continue;
+          const before = text.slice(0, index).trim().match(/([0-9.,]+(?:万|亿|[kKmM])?)$/);
+          const after = text.slice(index + label.length).trim().replace(/^[:：]/, '').trim().match(/^([0-9.,]+(?:万|亿|[kKmM])?)/);
+          if (before || after) return (before || after)[1];
         }
       }
       return null;

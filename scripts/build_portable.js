@@ -5,7 +5,8 @@ const { createZip } = require('../exporters/zip');
 
 const root = path.resolve(__dirname, '..');
 const distRoot = path.join(root, 'dist');
-const packageName = 'content-operator-local-data-connector-windows-x64';
+const version = '1.0.0-rc.2';
+const packageName = `content-operator-local-data-connector-windows-x64-v${version}`;
 const packageRoot = path.join(distRoot, packageName);
 const sourceDirectories = ['app', 'browser', 'collectors', 'exporters', 'parsers', 'storage', 'schemas', 'docs'];
 const sourceFiles = ['README.md', 'VERSION', 'package.json'];
@@ -33,6 +34,7 @@ function sha256(filename) { return crypto.createHash('sha256').update(fs.readFil
 
 function main() {
   if (path.dirname(packageRoot) !== distRoot || !packageRoot.startsWith(`${root}${path.sep}`)) throw new Error('DIST_PATH_INVALID');
+  if (fs.existsSync(path.join(packageRoot, 'workspace'))) throw new Error('PACKAGE_HAS_USER_WORKSPACE');
   fs.rmSync(packageRoot, { recursive: true, force: true });
   fs.mkdirSync(packageRoot, { recursive: true });
   const runtimeFiles = sourceDirectories.flatMap(relativeFiles).concat(sourceFiles);
@@ -45,7 +47,7 @@ function main() {
     'if errorlevel 1 pause', '',
   ].join('\r\n'), 'utf8');
   fs.writeFileSync(path.join(packageRoot, '便携包说明.txt'), [
-    '内容运营本地数据同步工具 1.0.0-rc.1', '', '1. 请先解压整个 ZIP。', '2. 双击“启动内容运营数据同步工具.cmd”。',
+    `内容运营本地数据同步工具 ${version}`, '', '1. 请先解压整个 ZIP。', '2. 双击“启动内容运营数据同步工具.cmd”。',
     '3. 按页面步骤启动专属浏览器并由本人登录。', '', '数据只保存在本目录 workspace。请勿分享 workspace/browser_profile。',
     '需要 Microsoft Edge，支持 Windows 11 x64。', '',
   ].join('\r\n'), 'utf8');
@@ -59,7 +61,7 @@ function main() {
   walkPackage(packageRoot);
   if (allFiles.some(name => /(^|[\\/])(workspace|browser_profile|exports|logs|backups)([\\/]|$)|cookies?|tokens?|\.env|\.db$/i.test(name))) throw new Error('PRIVATE_FILE_IN_PACKAGE');
   const buildInfo = {
-    version: '1.0.0-rc.1', platform: 'win32-x64', node: process.version, built_at: new Date().toISOString(),
+    version, platform: 'win32-x64', node: process.version, built_at: new Date().toISOString(),
     files: allFiles.map(name => ({ name: name.replace(/\\/g, '/'), bytes: fs.statSync(path.join(packageRoot, name)).size, sha256: sha256(path.join(packageRoot, name)) })),
   };
   fs.writeFileSync(path.join(packageRoot, 'BUILD_INFO.json'), `${JSON.stringify(buildInfo, null, 2)}\n`, 'utf8');

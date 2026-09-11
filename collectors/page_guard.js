@@ -9,8 +9,8 @@ function guardExpression(kind) {
       PERMISSION_DENIED: /无权访问|权限不足|暂无权限|403 Forbidden/i.test(text)
     };
     const selectors = {
-      identity: '[data-user-id],[data-account-id],[class*="user-id"],[class*="account-id"],[class*="nickname"]',
-      account: '[data-user-id],[data-account-id],[class*="user-name"],[class*="nickname"],[class*="bio"]',
+      identity: '.home-card-wrapper .personal .base,[data-user-id],[data-account-id],[class*="user-id"],[class*="account-id"],[class*="nickname"]',
+      account: '.home-card-wrapper .personal .base,[data-user-id],[data-account-id],[class*="user-name"],[class*="nickname"],[class*="bio"]',
       notes: '[data-note-id],[data-testid="note-card"],[class*="note-card"],[class*="content-card"]',
       'single-note': '[data-note-id],[data-testid="note-detail"],h1,[data-testid="note-title"]',
       stage: '[class*="trend"],[class*="overview"],[class*="data"]'

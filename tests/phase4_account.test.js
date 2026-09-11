@@ -7,12 +7,18 @@ const { collectAccount } = require('../collectors/account');
 const { parseCount } = require('../parsers/numbers');
 const { LocalDatabase } = require('../storage/database');
 const { Repository } = require('../storage/repository');
+const selectors = require('../collectors/selectors/xiaohongshu');
 
 test('parses localized counts strictly', () => {
   assert.equal(parseCount('1.2万'), 12000);
   assert.equal(parseCount('3,210'), 3210);
   assert.equal(parseCount('--'), null);
   assert.throws(() => parseCount('大约十万'), /INVALID_NUMBER/);
+});
+
+test('scopes creator-home metrics to the signed-in account card', () => {
+  assert.equal(selectors.account.metricsRoot[0], '.home-card-wrapper .personal .base .static.description-text');
+  assert.deepEqual(selectors.account.metricLabels.followers.slice(0, 2), ['粉丝数', '粉丝']);
 });
 
 test('missing metrics remain null and invalid metrics raise attention', async () => {

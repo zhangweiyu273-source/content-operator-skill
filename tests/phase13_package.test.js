@@ -7,6 +7,7 @@ test('portable builder has an explicit source list and rejects private paths', (
   const source = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'build_portable.js'), 'utf8');
   assert.match(source, /sourceDirectories = \[/);
   assert.match(source, /PRIVATE_FILE_IN_PACKAGE/);
+  assert.match(source, /PACKAGE_HAS_USER_WORKSPACE/);
   assert.doesNotMatch(source, /sourceDirectories.*workspace/);
   assert.match(source, /process\.execPath/);
 });

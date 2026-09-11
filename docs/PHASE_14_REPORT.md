@@ -4,7 +4,9 @@ STATUS = ATTENTION
 
 当前 Windows 11 x64 设备上的自动验收已完成：便携目录和 ZIP 存在、初始包不含 workspace、ZIP 私有路径扫描、包内 Node 运行时健康检查、本地 SQLite 初始化、本地服务启动与状态接口、Edge 检测。
 
-自动验收命令：`node scripts/acceptance_windows.js`。便携 ZIP SHA256：`330b1222988f50437f6b13f115c39877191cb677e009793b2e9b6466b4511863`。
+自动验收命令：`node scripts/acceptance_windows.js`。rc.2 便携 ZIP SHA256：`202f6dc2a0a6e6585445842d11718f0018b0c02afbcc9c6fb997a4389340c52f`。
+
+2026-09-11 真实页面校准：创作中心 `/new/home` 的身份 Gate、昵称、账号 ID、头像、简介、关注数、粉丝数及获赞收藏读取通过；该页未展示笔记总数，按设计保留 null。历史笔记列表、单篇数据和阶段页仍待逐页实测。
 
 USER_ACTION_REQUIRED = YES
 
