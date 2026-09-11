@@ -18,4 +18,15 @@ module.exports = Object.freeze({
   notes: {
     cards: ['[data-note-id]', '[data-testid="note-card"]', '[class*="note-card"]', '[class*="content-card"]'],
   },
+  noteDetail: {
+    id: ['[data-note-id]', '[data-testid="note-detail"]'],
+    title: ['h1', '[data-testid="note-title"]', '[class*="title"]'],
+    publishTime: ['time', '[data-testid="publish-time"]', '[class*="publish-time"]'],
+    body: ['[data-testid="note-content"]', '[class*="content"]', '[class*="desc"]'],
+    metricLabels: {
+      impressions: ['曝光', '曝光量'], views: ['观看', '浏览', '播放'], clicks: ['点击', '点击量'],
+      likes: ['点赞', '赞'], saves: ['收藏'], comments: ['评论'], follows: ['涨粉', '新增粉丝', '关注'],
+      profile_visits: ['主页访问', '主页访客'], dms: ['私信', '私信咨询'], leads: ['线索', '留资'],
+    },
+  },
 });

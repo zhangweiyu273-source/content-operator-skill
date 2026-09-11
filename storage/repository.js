@@ -60,6 +60,30 @@ class Repository {
       return { found: notes.length, added, updated };
     });
   }
+
+  saveSingleNote(accountId, note) {
+    if (!note?.note_id) throw new Error('NOTE_ID_REQUIRED');
+    const time = note.snapshot_time || new Date().toISOString();
+    return this.database.transaction(db => {
+      db.prepare(`INSERT INTO notes(account_id, note_id, note_url, title, publish_time, body, first_seen_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(account_id, note_id) DO UPDATE SET
+          note_url=COALESCE(excluded.note_url, notes.note_url), title=COALESCE(excluded.title, notes.title),
+          publish_time=COALESCE(excluded.publish_time, notes.publish_time), body=COALESCE(excluded.body, notes.body),
+          updated_at=excluded.updated_at`)
+        .run(accountId, note.note_id, note.note_url ?? null, note.title ?? null, note.publish_time ?? null,
+          note.body ?? null, time, time);
+      const m = note.metrics || {};
+      db.prepare(`INSERT OR IGNORE INTO note_snapshots(
+        account_id, note_id, snapshot_time, impressions, views, clicks, likes, saves, comments,
+        follows, profile_visits, dms, leads, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(accountId, note.note_id, time, m.impressions ?? null, m.views ?? null, m.clicks ?? null,
+          m.likes ?? null, m.saves ?? null, m.comments ?? null, m.follows ?? null,
+          m.profile_visits ?? null, m.dms ?? null, m.leads ?? null, time);
+      return { note_id: note.note_id, snapshot_time: time };
+    });
+  }
 }
 
 module.exports = { Repository };
