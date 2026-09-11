@@ -7,9 +7,10 @@ const { collectIdentity } = require('../collectors/identity');
 const { bindIdentity, readIdentity, verifyIdentity } = require('../storage/identity_store');
 
 test('collects only normalized identity fields from page result', async () => {
-  const page = { evaluate: async () => ({ nickname: ' 测试 用户 ', account_id: 'user_123', profile_url: 'https://example.test/profile?token=secret', avatar_url: 'https://cdn.test/a.png?sig=secret' }) };
+  const page = { evaluate: async () => ({ nickname: ' 测试 用户 ', account_id: '小红书号： user_123', profile_url: 'https://example.test/profile?token=secret', avatar_url: 'https://cdn.test/a.png?sig=secret' }) };
   const result = await collectIdentity(page);
   assert.equal(result.nickname, '测试 用户');
+  assert.equal(result.account_id, 'user_123');
   assert.equal(result.profile_url, 'https://example.test/profile');
   assert.equal(result.avatar_url, 'https://cdn.test/a.png');
   assert.equal(JSON.stringify(result).includes('secret'), false);

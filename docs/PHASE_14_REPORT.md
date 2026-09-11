@@ -4,7 +4,7 @@ STATUS = ATTENTION
 
 当前 Windows 11 x64 设备上的自动验收已完成：便携目录和 ZIP 存在、初始包不含 workspace、ZIP 私有路径扫描、包内 Node 运行时健康检查、本地 SQLite 初始化、本地服务启动与状态接口、Edge 检测。
 
-自动验收命令：`node scripts/acceptance_windows.js`。便携 ZIP SHA256：`10c0d8ab3f58b447b598d26d30eae93b4e890814cd2961a9f36280e5949ad3ce`。
+自动验收命令：`node scripts/acceptance_windows.js`。便携 ZIP SHA256：`330b1222988f50437f6b13f115c39877191cb677e009793b2e9b6466b4511863`。
 
 USER_ACTION_REQUIRED = YES
 

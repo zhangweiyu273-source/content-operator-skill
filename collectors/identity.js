@@ -1,5 +1,6 @@
 const selectors = require('./selectors/xiaohongshu');
 const { cleanText, extractionPrelude, sanitizePageUrl } = require('./page_helpers');
+const { normalizeAccountId } = require('../parsers/identity');
 
 function identityExpression() {
   return `(() => {
@@ -20,7 +21,7 @@ async function collectIdentity(page) {
   const raw = await page.evaluate(identityExpression());
   return {
     nickname: cleanText(raw?.nickname, 100),
-    account_id: cleanText(raw?.account_id, 100),
+    account_id: normalizeAccountId(raw?.account_id),
     profile_url: sanitizePageUrl(raw?.profile_url),
     avatar_url: sanitizePageUrl(raw?.avatar_url),
     checked_at: new Date().toISOString(),

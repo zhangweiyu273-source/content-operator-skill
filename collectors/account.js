@@ -1,6 +1,7 @@
 const selectors = require('./selectors/xiaohongshu');
 const { cleanText, extractionPrelude } = require('./page_helpers');
 const { parseOptionalCount } = require('../parsers/numbers');
+const { normalizeAccountId } = require('../parsers/identity');
 
 function accountExpression() {
   return `(() => {
@@ -38,7 +39,7 @@ async function collectAccount(page) {
   const errors = [];
   const result = {
     nickname: cleanText(raw?.nickname, 100),
-    account_id: cleanText(raw?.account_id, 100),
+    account_id: normalizeAccountId(raw?.account_id),
     bio: cleanText(raw?.bio, 1000),
     followers: parseOptionalCount(raw?.followers, 'followers', errors),
     following: parseOptionalCount(raw?.following, 'following', errors),

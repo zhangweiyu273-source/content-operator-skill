@@ -18,7 +18,7 @@ function notesExpression() {
       const timeNode = node.querySelector('time, [data-testid="publish-time"], [class*="time"]');
       const cover = node.querySelector('img');
       const text = (node.innerText || '').trim();
-      const metric = (label) => text.match(new RegExp(label + '[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)'))?.[1] || null;
+      const metric = (label) => text.match(new RegExp('(?:' + label + ')[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)'))?.[1] || null;
       cards.push({
         note_id: node.getAttribute('data-note-id') || node.getAttribute('data-id') || idFromUrl || null,
         note_url: href,

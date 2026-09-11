@@ -16,7 +16,7 @@ function relativeFiles(directory) {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const absolute = path.join(current, entry.name);
       if (entry.isDirectory()) walk(absolute);
-      else if (entry.name !== '.gitkeep') output.push(path.relative(root, absolute));
+      else if (entry.name !== '.gitkeep' && !/^PHASE_\d+_REPORT\.md$/i.test(entry.name)) output.push(path.relative(root, absolute));
     }
   }
   walk(path.join(root, directory));

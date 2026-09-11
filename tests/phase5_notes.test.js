@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { collectNotes, SCROLL_EXPRESSION } = require('../collectors/notes');
+const { notesExpression } = require('../collectors/notes');
 const { LocalDatabase } = require('../storage/database');
 const { Repository } = require('../storage/repository');
 
@@ -22,6 +23,10 @@ test('scrolls with limits, deduplicates, and reports malformed rows', async () =
   assert.ok(result.errors.some(error => error.code === 'TITLE_MISSING'));
   assert.ok(result.errors.some(error => error.code === 'DATE_PARSE_FAILED'));
   assert.ok(batch <= 4);
+});
+
+test('groups alternative visible labels before capturing metric values', () => {
+  assert.match(notesExpression(), /\(\?:' \+ label \+ '\)\[：/);
 });
 
 test('upserts notes and appends metric snapshots without duplicates', t => {
