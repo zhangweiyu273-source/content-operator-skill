@@ -17,6 +17,17 @@ const { writeSnapshot } = require('../storage/snapshots');
 const { ensureWorkspace } = require('../storage/workspace');
 const { recordedSync } = require('./sync_run');
 
+function selectPlatformPage(pages, kind = null) {
+  const platformPages = pages.filter(page => /^https?:\/\/([^/]+\.)?xiaohongshu\.com\//i.test(page.url));
+  const routeMatchers = {
+    account: url => new URL(url).pathname === '/new/home',
+    notes: url => new URL(url).pathname === '/new/note-manager',
+    'single-note': url => new URL(url).pathname.startsWith('/statistics/note-detail'),
+    stage: url => new URL(url).pathname === '/statistics/data-analysis',
+  };
+  return (routeMatchers[kind] && platformPages.find(page => routeMatchers[kind](page.url))) || platformPages[0] || null;
+}
+
 class ConnectorService {
   constructor(workspaceRoot) {
     this.workspace = ensureWorkspace(workspaceRoot);
@@ -25,9 +36,9 @@ class ConnectorService {
     this.browser = new DedicatedBrowser({ profilePath: this.workspace.browserProfile });
   }
 
-  async withPage(operation) {
+  async withPage(operation, kind = null) {
     const pages = await this.browser.listPages();
-    const target = [...pages].reverse().find(page => /^https?:\/\/([^/]+\.)?xiaohongshu\.com\//i.test(page.url));
+    const target = selectPlatformPage(pages, kind);
     if (!target) throw Object.assign(new Error('请在专属浏览器中打开小红书创作者后台页面。'), { code: 'PLATFORM_PAGE_NOT_OPEN' });
     const page = new CdpSession(target.webSocketDebuggerUrl);
     try { return await operation(page, target); } finally { page.close(); }
@@ -49,7 +60,7 @@ class ConnectorService {
     return bindIdentity(this.workspace.identity, inspected.candidate);
   }
 
-  async verifiedPage(operation) {
+  async verifiedPage(operation, kind = null) {
     return this.withPage(async (page, target) => {
       const current = await collectIdentity(page);
       const verification = verifyIdentity(this.workspace.identity, current);
@@ -61,7 +72,7 @@ class ConnectorService {
         throw error;
       }
       return operation(page, target, verification.account);
-    });
+    }, kind);
   }
 
   async sync(kind) {
@@ -95,7 +106,7 @@ class ConnectorService {
         status: collected.status, errors: collected.errors, item_count: Array.isArray(collected.data) ? collected.data.length : 1,
         details: { summary: collected.summary || null, snapshot_file: path.basename(snapshotPath), page: pageUrl },
       };
-    }));
+    }, kind));
   }
 
   exportBundle() {
@@ -125,4 +136,4 @@ class ConnectorService {
   close() { this.database.close(); }
 }
 
-module.exports = { ConnectorService };
+module.exports = { ConnectorService, selectPlatformPage };

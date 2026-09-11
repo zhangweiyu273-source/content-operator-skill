@@ -3,9 +3,10 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
+const { reservePort } = require('../browser/edge');
 
 const root = path.resolve(__dirname, '..');
-const packageName = 'content-operator-local-data-connector-windows-x64-v1.0.0-rc.3';
+const packageName = 'content-operator-local-data-connector-windows-x64-v1.0.0-rc.4';
 const packageRoot = path.join(root, 'dist', packageName);
 const zipPath = `${packageRoot}.zip`;
 
@@ -21,9 +22,9 @@ function zipEntryNames(buffer) {
   return names;
 }
 
-async function waitForStatus() {
+async function waitForStatus(port) {
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    try { const response = await fetch('http://127.0.0.1:31876/api/status'); if (response.ok) return response.json(); } catch {}
+    try { const response = await fetch(`http://127.0.0.1:${port}/api/status`); if (response.ok) return response.json(); } catch {}
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   throw new Error('PACKAGED_SERVER_NOT_READY');
@@ -40,14 +41,15 @@ async function main() {
   results.zip_sha256 = sha256(zipPath);
   results.zip_entries = entries.length;
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-acceptance-'));
-  const environment = { ...process.env, CONTENT_OPERATOR_WORKSPACE: path.join(tempRoot, 'workspace'), CONNECTOR_OPEN_UI: '0' };
+  const acceptancePort = await reservePort();
+  const environment = { ...process.env, CONTENT_OPERATOR_WORKSPACE: path.join(tempRoot, 'workspace'), CONNECTOR_OPEN_UI: '0', CONNECTOR_PORT: String(acceptancePort) };
   let child;
   try {
     const runtime = path.join(packageRoot, 'runtime', 'node.exe');
     const health = spawnSync(runtime, [path.join(packageRoot, 'app', 'cli.js'), 'health'], { env: environment, encoding: 'utf8', timeout: 10000 });
     results.packaged_runtime_health = health.status === 0 && JSON.parse(health.stdout).database.healthy ? 'PASS' : `FAIL:${health.stderr || health.stdout}`;
     child = spawn(runtime, [path.join(packageRoot, 'app', 'server.js')], { env: environment, stdio: 'ignore', windowsHide: true });
-    const status = await waitForStatus();
+    const status = await waitForStatus(acceptancePort);
     results.packaged_local_server = status.database?.healthy && status.browser?.connected === false ? 'PASS' : 'FAIL';
     const { findEdge } = require(path.join(packageRoot, 'browser', 'edge.js'));
     results.edge_detected = findEdge() ? 'PASS' : 'FAIL';

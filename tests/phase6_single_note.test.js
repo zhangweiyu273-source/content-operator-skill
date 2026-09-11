@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { collectSingleNote } = require('../collectors/single_note');
+const { collectSingleNote, singleNoteExpression } = require('../collectors/single_note');
+const { selectPlatformPage } = require('../app/service');
 const { LocalDatabase } = require('../storage/database');
 const { Repository } = require('../storage/repository');
 
@@ -29,4 +30,23 @@ test('stores all observed detail metrics in a new snapshot', t => {
   assert.equal(row.profile_visits, 3);
   assert.equal(row.dms, 1);
   assert.equal(row.views, null);
+});
+
+test('recognizes the current creator detail structure and keeps rate fields out of counts', () => {
+  const expression = singleNoteExpression();
+  assert.match(expression, /note-overview-card/);
+  assert.match(expression, /core-data-section \.block-container/);
+  assert.match(expression, /searchParams\.get\('noteId'\)/);
+  assert.doesNotMatch(expression, /clicks.*封面点击率/);
+});
+
+test('selects the requested collector page when several creator tabs are open', () => {
+  const pages = [
+    { id: 'analysis', url: 'https://creator.xiaohongshu.com/statistics/data-analysis' },
+    { id: 'detail', url: 'https://creator.xiaohongshu.com/statistics/note-detail?noteId=n123456' },
+    { id: 'manager', url: 'https://creator.xiaohongshu.com/new/note-manager' },
+  ];
+  assert.equal(selectPlatformPage(pages, 'single-note').id, 'detail');
+  assert.equal(selectPlatformPage(pages, 'stage').id, 'analysis');
+  assert.equal(selectPlatformPage(pages, 'notes').id, 'manager');
 });

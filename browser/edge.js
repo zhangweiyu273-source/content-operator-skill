@@ -26,6 +26,20 @@ function buildEdgeArgs({ profilePath, port, startUrl = 'https://creator.xiaohong
   ];
 }
 
+function readStoredPort(profilePath) {
+  const statePath = path.join(path.dirname(profilePath), 'browser_connection.json');
+  try {
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    return state.cdp_host === '127.0.0.1' && Number.isInteger(state.cdp_port) && state.cdp_port > 0 && state.cdp_port < 65536
+      ? state.cdp_port : null;
+  } catch { return null; }
+}
+
+function writeStoredPort(profilePath, port) {
+  const statePath = path.join(path.dirname(profilePath), 'browser_connection.json');
+  fs.writeFileSync(statePath, `${JSON.stringify({ cdp_host: '127.0.0.1', cdp_port: port }, null, 2)}\n`, 'utf8');
+}
+
 function reservePort() {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -43,7 +57,7 @@ class DedicatedBrowser {
     this.profilePath = profilePath;
     this.executablePath = executablePath;
     this.startUrl = startUrl;
-    this.port = null;
+    this.port = readStoredPort(profilePath);
     this.child = null;
   }
 
@@ -57,7 +71,10 @@ class DedicatedBrowser {
     this.child.once('exit', () => { this.child = null; });
     for (let attempt = 0; attempt < 30; attempt += 1) {
       await new Promise(resolve => setTimeout(resolve, 200));
-      if (await this.isConnected()) return this.status();
+      if (await this.isConnected()) {
+        writeStoredPort(this.profilePath, this.port);
+        return this.status();
+      }
     }
     throw new Error('BROWSER_CDP_NOT_READY');
   }
@@ -93,4 +110,4 @@ class DedicatedBrowser {
   }
 }
 
-module.exports = { DedicatedBrowser, EDGE_CANDIDATES, buildEdgeArgs, findEdge, reservePort };
+module.exports = { DedicatedBrowser, EDGE_CANDIDATES, buildEdgeArgs, findEdge, readStoredPort, reservePort };

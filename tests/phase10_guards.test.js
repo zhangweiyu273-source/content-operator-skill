@@ -22,7 +22,9 @@ test('distinguishes a wrong page from a changed page schema', async () => {
   const home = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/new/home' }) };
   await assert.rejects(assertPageSafe(home, 'single-note'), error => error.code === 'CURRENT_NOTE_NOT_OPEN' && error.syncResult === 'ABORTED');
   const unknownDetail = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/new/note-data/123' }) };
-  await assert.rejects(assertPageSafe(unknownDetail, 'single-note'), error => error.code === 'PAGE_SCHEMA_CHANGED' && error.syncResult === 'ATTENTION');
+  await assert.rejects(assertPageSafe(unknownDetail, 'single-note'), error => error.code === 'CURRENT_NOTE_NOT_OPEN' && error.syncResult === 'ABORTED');
+  const changedDetail = { evaluate: async () => ({ checks: {}, structureVisible: false, url: 'https://creator.xiaohongshu.com/statistics/note-detail' }) };
+  await assert.rejects(assertPageSafe(changedDetail, 'single-note'), error => error.code === 'PAGE_SCHEMA_CHANGED' && error.syncResult === 'ATTENTION');
 });
 
 test('audit records user-action stops as ABORTED', async t => {

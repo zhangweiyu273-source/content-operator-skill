@@ -12,7 +12,7 @@ function guardExpression(kind) {
       identity: '.home-card-wrapper .personal .base,.user-info .name-box,[data-user-id],[data-account-id],[class*="user-id"],[class*="account-id"],[class*="nickname"]',
       account: '.home-card-wrapper .personal .base,[data-user-id],[data-account-id],[class*="user-name"],[class*="nickname"],[class*="bio"]',
       notes: '[data-note-id],[data-testid="note-card"],[class*="note-card"],[class*="content-card"]',
-      'single-note': '[data-note-id],[data-testid="note-detail"],h1,[data-testid="note-title"]',
+      'single-note': '.note-overview-card,[data-note-id],[data-testid="note-detail"],[data-testid="note-title"]',
       stage: '[class*="trend"],[class*="overview"],[class*="data"]'
     };
     const emptyAllowed = ${JSON.stringify(kind)} === 'notes' && /暂无(?:笔记|作品|内容)|还没有发布/.test(text);
@@ -34,7 +34,7 @@ async function assertPageSafe(page, kind = 'identity') {
     let pathname = '';
     try { pathname = new URL(result.url).pathname; } catch {}
     const wrongPage =
-      kind === 'single-note' && ['/new/home', '/new/note-manager'].includes(pathname) ? ['CURRENT_NOTE_NOT_OPEN', '请先在专属浏览器的笔记管理页打开一篇笔记的数据详情，再点击“同步当前笔记”。'] :
+      kind === 'single-note' && !pathname.startsWith('/statistics/note-detail') ? ['CURRENT_NOTE_NOT_OPEN', '请先在专属浏览器的笔记管理页打开一篇笔记的数据详情，再点击“同步当前笔记”。'] :
       kind === 'notes' && pathname !== '/new/note-manager' ? ['NOTE_MANAGER_NOT_OPEN', '请先在专属浏览器中打开“笔记管理”，再点击“同步历史笔记”。'] :
       kind === 'account' && pathname !== '/new/home' ? ['ACCOUNT_HOME_NOT_OPEN', '请先在专属浏览器中打开“账号首页”，再点击“同步账号信息”。'] : null;
     if (wrongPage) {

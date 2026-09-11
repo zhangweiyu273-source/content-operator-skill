@@ -50,9 +50,11 @@ function createAppServer(service, uiRoot = path.join(__dirname, 'ui')) {
 if (require.main === module) {
   const service = new ConnectorService(workspacePath());
   const { server } = createAppServer(service);
-  server.on('error', error => { console.error(error.code === 'EADDRINUSE' ? '工具已经在运行，或本机端口 31876 被占用。' : error.message); service.close(); process.exit(1); });
-  server.listen(31876, '127.0.0.1', () => {
-    const url = 'http://127.0.0.1:31876';
+  const configuredPort = Number(process.env.CONNECTOR_PORT || 31876);
+  const port = Number.isInteger(configuredPort) && configuredPort > 0 && configuredPort < 65536 ? configuredPort : 31876;
+  server.on('error', error => { console.error(error.code === 'EADDRINUSE' ? `工具已经在运行，或本机端口 ${port} 被占用。` : error.message); service.close(); process.exit(1); });
+  server.listen(port, '127.0.0.1', () => {
+    const url = `http://127.0.0.1:${port}`;
     console.log(`${APP_NAME} 已启动：${url}`);
     if (process.env.CONNECTOR_OPEN_UI === '1') {
       const opener = spawn('explorer.exe', [url], { detached: true, stdio: 'ignore', windowsHide: true });

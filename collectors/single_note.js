@@ -7,12 +7,18 @@ function singleNoteExpression() {
   return `(() => {
     ${extractionPrelude(selectors)}
     const labelValue = (labels) => {
+      for (const block of document.querySelectorAll('.core-data-section .block-container')) {
+        const label = (block.querySelector('.des')?.innerText || '').replace(/\\s+/g, ' ').trim();
+        if (!labels.includes(label)) continue;
+        const value = (block.querySelector('.content')?.innerText || '').replace(/\\s+/g, ' ').trim();
+        if (/^[0-9.,]+(?:万|亿|[kKmM])?$/.test(value)) return value;
+      }
       for (const node of document.querySelectorAll('body *')) {
         if (node.children.length > 4) continue;
         const text = (node.innerText || '').replace(/\\s+/g, ' ').trim();
         if (!text || text.length > 100) continue;
         for (const label of labels) {
-          const value = text.match(new RegExp(label + '[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)'))?.[1];
+          const value = text.match(new RegExp('(?:^|\\s)' + label + '[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)(?:\\s|$)'))?.[1];
           if (value) return value;
         }
       }
@@ -23,7 +29,7 @@ function singleNoteExpression() {
     const fields = {};
     for (const [key, labels] of Object.entries(SELECTORS.metricLabels)) fields[key] = labelValue(labels);
     return {
-      note_id: firstAttr(SELECTORS.id, ['data-note-id', 'data-id']) || url.searchParams.get('noteId') || fromPath || null,
+      note_id: url.searchParams.get('noteId') || firstAttr(SELECTORS.id, ['data-note-id', 'data-id']) || fromPath || null,
       note_url: safeUrl(location.href), title: firstText(SELECTORS.title), publish_time: firstText(SELECTORS.publishTime),
       body: firstText(SELECTORS.body), metrics: fields
     };
