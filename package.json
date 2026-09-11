@@ -1,6 +1,6 @@
 {
   "name": "content-operator-local-data-connector",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "private": true,
   "description": "用户主动操作的本地内容平台数据同步工具",
   "main": "app/server.js",

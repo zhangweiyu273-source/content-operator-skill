@@ -1,6 +1,17 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+function avatarIdentityKey(value) {
+  if (!value) return null;
+  try {
+    const filename = new URL(value).pathname.split('/').filter(Boolean).at(-1) || '';
+    const key = filename.split('!')[0].replace(/\.(?:jpe?g|png|webp|gif)$/i, '');
+    return /^[A-Za-z0-9_-]{16,}$/.test(key) ? key : null;
+  } catch {
+    return null;
+  }
+}
+
 function readIdentity(filename) {
   if (!fs.existsSync(filename)) return null;
   return JSON.parse(fs.readFileSync(filename, 'utf8'));
@@ -29,11 +40,21 @@ function bindIdentity(filename, candidate) {
 function verifyIdentity(filename, current) {
   const bound = readIdentity(filename);
   if (!bound) return { ACCOUNT_IDENTITY_VERIFIED: 'NO', USER_ACTION_REQUIRED: 'YES', reason: 'IDENTITY_NOT_BOUND' };
-  if (!current?.account_id) return { ACCOUNT_IDENTITY_VERIFIED: 'NO', USER_ACTION_REQUIRED: 'YES', reason: 'IDENTITY_NOT_VISIBLE' };
-  if (bound.account_id !== current.account_id) {
+  if (current?.account_id && bound.account_id !== current.account_id) {
     return { ACCOUNT_IDENTITY_VERIFIED: 'NO', ACCOUNT_MISMATCH: 'YES', SYNC_ABORTED: 'YES', reason: 'ACCOUNT_MISMATCH' };
   }
-  return { ACCOUNT_IDENTITY_VERIFIED: 'YES', account: bound };
+  if (current?.account_id === bound.account_id) return { ACCOUNT_IDENTITY_VERIFIED: 'YES', verification_method: 'account_id', account: bound };
+  const nicknameMatches = Boolean(current?.nickname && bound.nickname && current.nickname === bound.nickname);
+  const currentAvatarKey = avatarIdentityKey(current?.avatar_url);
+  const boundAvatarKey = avatarIdentityKey(bound.avatar_url);
+  const avatarMatches = Boolean(currentAvatarKey && boundAvatarKey && currentAvatarKey === boundAvatarKey);
+  if (nicknameMatches && avatarMatches) {
+    return { ACCOUNT_IDENTITY_VERIFIED: 'YES', verification_method: 'nickname_avatar', account: bound };
+  }
+  if ((current?.nickname && !nicknameMatches) || (current?.avatar_url && bound.avatar_url && !avatarMatches)) {
+    return { ACCOUNT_IDENTITY_VERIFIED: 'NO', ACCOUNT_MISMATCH: 'YES', SYNC_ABORTED: 'YES', reason: 'ACCOUNT_MISMATCH' };
+  }
+  return { ACCOUNT_IDENTITY_VERIFIED: 'NO', USER_ACTION_REQUIRED: 'YES', reason: 'IDENTITY_NOT_VISIBLE' };
 }
 
-module.exports = { bindIdentity, readIdentity, verifyIdentity };
+module.exports = { avatarIdentityKey, bindIdentity, readIdentity, verifyIdentity };

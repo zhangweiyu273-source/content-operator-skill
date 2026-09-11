@@ -1,9 +1,9 @@
 module.exports = Object.freeze({
   identity: {
-    root: ['.home-card-wrapper .personal .base', '[data-testid="account-profile"]'],
-    nickname: ['.home-card-wrapper .personal .base .account-name', '[data-testid="user-name"]', '[class*="user-name"]', '[class*="nickname"]', '.name'],
+    root: ['.home-card-wrapper .personal .base', '.user-info .name-box', '[data-testid="account-profile"]'],
+    nickname: ['.home-card-wrapper .personal .base .account-name', '.user-info .name-box', '[data-testid="user-name"]', '[class*="user-name"]', '[class*="nickname"]', '.name'],
     accountId: ['.home-card-wrapper .personal .base .others.description-text', '[data-user-id]', '[data-account-id]', '[class*="user-id"]', '[class*="account-id"]'],
-    avatar: ['.home-card-wrapper .personal .base .avatar img', '[data-testid="avatar"] img', '[class*="avatar"] img'],
+    avatar: ['.home-card-wrapper .personal .base .avatar img', '.user-info img.user_avatar', '[data-testid="avatar"] img', '[class*="avatar"] img'],
   },
   account: {
     metricsRoot: ['.home-card-wrapper .personal .base .static.description-text', '[data-testid="account-metrics"]'],

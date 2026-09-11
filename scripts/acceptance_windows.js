@@ -5,7 +5,7 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
-const packageName = 'content-operator-local-data-connector-windows-x64-v1.0.0-rc.2';
+const packageName = 'content-operator-local-data-connector-windows-x64-v1.0.0-rc.3';
 const packageRoot = path.join(root, 'dist', packageName);
 const zipPath = `${packageRoot}.zip`;
 

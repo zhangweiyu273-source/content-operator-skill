@@ -37,7 +37,9 @@ class ConnectorService {
     return this.withPage(async (page, target) => {
       await assertPageSafe(page, 'identity');
       const candidate = await collectIdentity(page);
-      return { candidate, page_url: sanitizePageUrl(target.url) };
+      const verification = verifyIdentity(this.workspace.identity, candidate);
+      if (!candidate.account_id && verification.ACCOUNT_IDENTITY_VERIFIED === 'YES') candidate.account_id = verification.account.account_id;
+      return { candidate, verification, page_url: sanitizePageUrl(target.url) };
     });
   }
 
