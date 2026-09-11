@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 const { ConnectorService } = require('./service');
 const { APP_NAME, workspacePath } = require('./config');
 
@@ -49,7 +50,15 @@ function createAppServer(service, uiRoot = path.join(__dirname, 'ui')) {
 if (require.main === module) {
   const service = new ConnectorService(workspacePath());
   const { server } = createAppServer(service);
-  server.listen(31876, '127.0.0.1', () => console.log(`${APP_NAME} 已启动：http://127.0.0.1:31876`));
+  server.on('error', error => { console.error(error.code === 'EADDRINUSE' ? '工具已经在运行，或本机端口 31876 被占用。' : error.message); service.close(); process.exit(1); });
+  server.listen(31876, '127.0.0.1', () => {
+    const url = 'http://127.0.0.1:31876';
+    console.log(`${APP_NAME} 已启动：${url}`);
+    if (process.env.CONNECTOR_OPEN_UI === '1') {
+      const opener = spawn('explorer.exe', [url], { detached: true, stdio: 'ignore', windowsHide: true });
+      opener.unref();
+    }
+  });
   const shutdown = () => server.close(() => { service.close(); process.exit(0); });
   process.on('SIGINT', shutdown); process.on('SIGTERM', shutdown);
 }

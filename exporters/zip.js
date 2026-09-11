@@ -17,7 +17,8 @@ function createZip(destination, entries) {
   const centralParts = [];
   let offset = 0;
   for (const entry of entries) {
-    if (!/^[A-Za-z0-9_.\/\[\]-]+$/.test(entry.name) || entry.name.includes('..')) throw new Error('ZIP_ENTRY_NAME_INVALID');
+    const segments = entry.name.split('/');
+    if (!entry.name || entry.name.startsWith('/') || entry.name.includes('\\') || /[\u0000-\u001f]/.test(entry.name) || segments.includes('..')) throw new Error('ZIP_ENTRY_NAME_INVALID');
     const name = Buffer.from(entry.name, 'utf8');
     const data = Buffer.isBuffer(entry.data) ? entry.data : Buffer.from(entry.data);
     const checksum = crc32(data);

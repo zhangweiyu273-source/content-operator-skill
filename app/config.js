@@ -8,7 +8,7 @@ function workspacePath() {
 
 module.exports = {
   APP_NAME: '内容运营本地数据同步工具',
-  APP_VERSION: '0.1.0',
+  APP_VERSION: '1.0.0-rc.1',
   PROJECT_ROOT,
   workspacePath,
 };
