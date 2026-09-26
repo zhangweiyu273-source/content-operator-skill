@@ -1,16 +1,18 @@
 {
   "name": "content-operator-local-data-connector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "用户主动操作的本地内容平台数据同步工具",
   "main": "app/server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node app/server.js",
+    "test": "node --test",
     "check": "node --test && node scripts/security_audit.js",
     "health": "node app/cli.js health",
     "backup": "node app/cli.js backup",
-    "build:portable": "node scripts/build_portable.js"
+    "build:portable": "node scripts/build_portable.js",
+    "accept:windows": "node scripts/acceptance_windows.js"
   },
   "engines": {
     "node": ">=24.0.0"

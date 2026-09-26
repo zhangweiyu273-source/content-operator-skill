@@ -20,7 +20,7 @@
 
 ### Local Data Connector
 
-[Local Data Connector](local-data-connector/) 是可选工具，当前正式版为 Windows x64 便携包。它的流程是：
+[Local Data Connector](local-data-connector/) 是可选工具，当前 Windows 版为 `1.1.0`。V1.1 使用创作者中心正常登录态下的 Network/API 列表数据，并以增强的 DOM 滚动采集作为回退。它的流程是：
 
 ```text
 用户本人手动登录自己的账号
@@ -86,10 +86,10 @@
 请从 GitHub Releases 下载：
 
 - `content-operator-skill-public-v1.zip`
-- `content-operator-local-data-connector-windows-x64-v1.0.0.zip`
+- `content-operator-local-data-connector-windows-x64-v1.1.0.zip`
 - `content-operator-skill-user-guide.md`
 
-Windows Connector 的固定 SHA256：
+Windows Connector v1.0.0 的历史 SHA256：
 
 ```text
 8ca2e45bbee006f5f2b37ad838f2197340382fd91837d06d630f0ac759c0810f

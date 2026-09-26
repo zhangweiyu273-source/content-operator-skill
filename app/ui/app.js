@@ -10,6 +10,12 @@ async function api(path, method = 'GET', body) {
   return value;
 }
 function show(label, value) { notice.textContent = label; output.textContent = JSON.stringify(value, null, 2); }
+function noteSyncLabel(value) {
+  const summary = value?.details?.summary || {};
+  const sources = value?.details?.sources || {};
+  const state = value?.status === 'ATTENTION' ? '（部分字段需要关注）' : '';
+  return `历史笔记同步完成${state}：发现 ${summary.found ?? value?.item_count ?? 0} 篇，新增 ${summary.added ?? 0} 篇，更新 ${summary.updated ?? 0} 篇，数据库共 ${summary.database_total ?? 0} 篇；API/Network ${sources.api_network ?? 0} 篇，DOM fallback ${sources.dom_fallback ?? 0} 篇。`;
+}
 async function refresh() {
   const state = await api('/api/status');
   document.querySelector('#browserState').textContent = state.browser.connected ? '已连接' : '未连接';
@@ -22,7 +28,7 @@ const actions = {
   inspect: async () => { const value = await api('/api/identity/inspect', 'POST'); candidate = value.candidate; document.querySelector('#confirmButton').disabled = !candidate.account_id || !candidate.nickname; show('请核对账号，正确后再确认绑定。', value); },
   confirm: async () => show('账号已确认。', await api('/api/identity/confirm', 'POST', { account_id: candidate?.account_id })),
   account: async () => show('账号信息同步完成。', await api('/api/sync/account', 'POST')),
-  notes: async () => show('历史笔记同步完成。', await api('/api/sync/notes', 'POST')),
+  notes: async () => { const value = await api('/api/sync/notes', 'POST'); show(noteSyncLabel(value), value); },
   'single-note': async () => show('当前笔记同步完成。', await api('/api/sync/single-note', 'POST')),
   stage: async () => show('阶段数据同步完成。', await api('/api/sync/stage', 'POST')),
   data: async () => show('本地数据预览', await api('/api/data')),

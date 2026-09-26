@@ -28,6 +28,26 @@ function selectPlatformPage(pages, kind = null) {
   return (routeMatchers[kind] && platformPages.find(page => routeMatchers[kind](page.url))) || platformPages[0] || null;
 }
 
+async function ensureCollectorPage(page, target, kind, {
+  wait = ms => new Promise(resolve => setTimeout(resolve, ms)), maxAttempts = 30,
+} = {}) {
+  if (kind !== 'notes' || new URL(target.url).pathname === '/new/note-manager' || typeof page.send !== 'function') return target;
+  const url = 'https://creator.xiaohongshu.com/new/note-manager';
+  await page.send('Page.enable');
+  await page.send('Page.navigate', { url });
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await wait(200);
+    try {
+      const current = await page.evaluate('location.href');
+      if (new URL(current).pathname === '/new/note-manager') return { ...target, url: current };
+    } catch {}
+  }
+  const error = new Error('无法自动打开笔记管理页，请检查创作者中心页面。');
+  error.code = 'NOTE_MANAGER_NAVIGATION_TIMEOUT'; error.syncResult = 'ABORTED';
+  error.details = { USER_ACTION_REQUIRED: 'YES', NOTE_MANAGER_AUTO_NAVIGATION: 'FAIL' };
+  throw error;
+}
+
 class ConnectorService {
   constructor(workspaceRoot) {
     this.workspace = ensureWorkspace(workspaceRoot);
@@ -62,6 +82,7 @@ class ConnectorService {
 
   async verifiedPage(operation, kind = null) {
     return this.withPage(async (page, target) => {
+      target = await ensureCollectorPage(page, target, kind);
       const current = await collectIdentity(page);
       const verification = verifyIdentity(this.workspace.identity, current);
       if (verification.ACCOUNT_IDENTITY_VERIFIED !== 'YES') {
@@ -82,7 +103,7 @@ class ConnectorService {
     if (!collectors[kind]) throw Object.assign(new Error('未知同步类型。'), { code: 'COLLECTOR_UNKNOWN' });
     const bound = readIdentity(this.workspace.identity);
     return recordedSync(this.repository, { accountId: bound?.account_id || null, collector: kind }, async syncRunId => this.verifiedPage(async (page, target, account) => {
-      await assertPageSafe(page, kind);
+      await assertPageSafe(page, kind, { allowExpectedRoute: kind === 'notes' });
       const collected = await collectors[kind](page);
       if (kind === 'account') {
         collected.data.account_id = account.account_id;
@@ -90,6 +111,7 @@ class ConnectorService {
         this.repository.saveAccountSnapshot(collected.data);
       } else if (kind === 'notes') {
         collected.summary = this.repository.saveNotes(account.account_id, collected.data);
+        collected.summary.database_total = this.database.db.prepare('SELECT COUNT(*) AS count FROM notes WHERE account_id=?').get(account.account_id).count;
       } else if (kind === 'single-note') {
         if (!collected.data.note_id) throw Object.assign(new Error('当前页面无法识别笔记 ID。'), { code: 'NOTE_ID_MISSING' });
         this.repository.saveSingleNote(account.account_id, collected.data);
@@ -104,7 +126,11 @@ class ConnectorService {
       });
       return {
         status: collected.status, errors: collected.errors, item_count: Array.isArray(collected.data) ? collected.data.length : 1,
-        details: { summary: collected.summary || null, snapshot_file: path.basename(snapshotPath), page: pageUrl },
+        details: {
+          summary: collected.summary || null, sources: collected.sources || null,
+          pagination: collected.pagination || null, network_unavailable: collected.network_unavailable || false,
+          snapshot_file: path.basename(snapshotPath), page: pageUrl,
+        },
       };
     }, kind));
   }
@@ -136,4 +162,4 @@ class ConnectorService {
   close() { this.database.close(); }
 }
 
-module.exports = { ConnectorService, selectPlatformPage };
+module.exports = { ConnectorService, ensureCollectorPage, selectPlatformPage };

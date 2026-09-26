@@ -21,7 +21,7 @@ function guardExpression(kind) {
   })()`;
 }
 
-async function assertPageSafe(page, kind = 'identity') {
+async function assertPageSafe(page, kind = 'identity', { allowExpectedRoute = false } = {}) {
   const result = await page.evaluate(guardExpression(kind));
   const blocking = Object.entries(result.checks || {}).find(([, active]) => active);
   if (blocking) {
@@ -33,6 +33,7 @@ async function assertPageSafe(page, kind = 'identity') {
   if (!result.structureVisible) {
     let pathname = '';
     try { pathname = new URL(result.url).pathname; } catch {}
+    if (allowExpectedRoute && kind === 'notes' && pathname === '/new/note-manager') return result;
     const wrongPage =
       kind === 'single-note' && !pathname.startsWith('/statistics/note-detail') ? ['CURRENT_NOTE_NOT_OPEN', '请先在专属浏览器的笔记管理页打开一篇笔记的数据详情，再点击“同步当前笔记”。'] :
       kind === 'notes' && pathname !== '/new/note-manager' ? ['NOTE_MANAGER_NOT_OPEN', '请先在专属浏览器中打开“笔记管理”，再点击“同步历史笔记”。'] :
