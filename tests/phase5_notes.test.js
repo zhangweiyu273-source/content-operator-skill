@@ -27,6 +27,7 @@ test('scrolls with limits, deduplicates, and reports malformed rows', async () =
 
 test('groups alternative visible labels before capturing metric values', () => {
   assert.match(notesExpression(), /\(\?:' \+ label \+ '\)\[：/);
+  assert.doesNotThrow(() => new Function(`return ${notesExpression()}`));
 });
 
 test('upserts notes and appends metric snapshots without duplicates', t => {

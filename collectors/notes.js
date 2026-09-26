@@ -14,12 +14,12 @@ function notesExpression() {
       unique.add(node);
       const anchor = node.matches('a[href]') ? node : node.querySelector('a[href]');
       const href = anchor?.href || null;
-      const idFromUrl = href?.match(/(?:explore|note|publish)\/([A-Za-z0-9_-]{6,})/)?.[1] || new URL(href || location.href).searchParams.get('noteId');
+      const idFromUrl = href?.match(/(?:explore|note|publish)\\/([A-Za-z0-9_-]{6,})/)?.[1] || new URL(href || location.href).searchParams.get('noteId');
       const titleNode = node.querySelector('[data-testid="title"], [class*="title"]');
       const timeNode = node.querySelector('time, [data-testid="publish-time"], [class*="time"]');
       const cover = node.querySelector('img');
       const text = (node.innerText || '').trim();
-      const metric = (label) => text.match(new RegExp('(?:' + label + ')[：:\\s]*([0-9.,]+(?:万|亿|[kKmM])?)'))?.[1] || null;
+      const metric = (label) => text.match(new RegExp('(?:' + label + ')[：:\\\\s]*([0-9.,]+(?:万|亿|[kKmM])?)'))?.[1] || null;
       cards.push({
         note_id: node.getAttribute('data-note-id') || node.getAttribute('data-id') || idFromUrl || null,
         note_url: href, title: titleNode?.textContent?.trim() || anchor?.getAttribute('title') || null,
@@ -62,14 +62,17 @@ function normalizeNote(raw, errors = []) {
   const title = cleanText(raw?.title === undefined || raw?.title === null ? null : String(raw.title), 500);
   if (!noteId) errors.push({ field: 'note_id', code: 'NOTE_ID_MISSING' });
   if (!title) errors.push({ field: 'title', code: 'TITLE_MISSING', note_id: noteId });
+  const metricErrors = [];
+  const metrics = {
+    views: parseOptionalCount(raw?.views, 'views', metricErrors), likes: parseOptionalCount(raw?.likes, 'likes', metricErrors),
+    saves: parseOptionalCount(raw?.saves, 'saves', metricErrors), comments: parseOptionalCount(raw?.comments, 'comments', metricErrors),
+  };
+  errors.push(...metricErrors.map(error => ({ ...error, note_id: noteId })));
   return {
     note_id: noteId, note_url: sanitizePageUrl(raw?.note_url), title,
     publish_time: normalizePublishTime(raw?.publish_time, errors, noteId), cover: sanitizePageUrl(raw?.cover),
     status: cleanText(raw?.status === undefined || raw?.status === null ? null : String(raw.status), 100),
-    metrics: {
-      views: parseOptionalCount(raw?.views, 'views', errors), likes: parseOptionalCount(raw?.likes, 'likes', errors),
-      saves: parseOptionalCount(raw?.saves, 'saves', errors), comments: parseOptionalCount(raw?.comments, 'comments', errors),
-    },
+    metrics,
   };
 }
 
@@ -129,6 +132,7 @@ async function collectNotes(page, options = {}) {
   const dom = captured.driven; const data = mergeNotes(apiNotes, dom.data, maxItems);
   const byId = new Map(data.map(note => [note.note_id, note]));
   const finalErrors = [...dom.errors, ...apiErrors].filter(error => {
+    if (!error.note_id) return false;
     const note = byId.get(error.note_id);
     if (error.code === 'TITLE_MISSING' && note?.title) return false;
     if (error.code === 'DATE_PARSE_FAILED' && note?.publish_time) return false;
