@@ -12,7 +12,9 @@
     "health": "node app/cli.js health",
     "backup": "node app/cli.js backup",
     "build:portable": "node scripts/build_portable.js",
-    "accept:windows": "node scripts/acceptance_windows.js"
+    "build:mac": "node scripts/build_macos.js",
+    "accept:windows": "node scripts/acceptance_windows.js",
+    "accept:mac": "node scripts/acceptance_macos.js"
   },
   "engines": {
     "node": ">=24.0.0"

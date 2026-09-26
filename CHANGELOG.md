@@ -1,5 +1,17 @@
 # Changelog
 
+## macOS v1.0.0
+
+### Local Data Connector for Apple Silicon
+
+- 支持 macOS arm64（M1 / M2 / M3 / M4）
+- 内置 darwin-arm64 Node runtime，普通用户无需预装 Node
+- 优先启动 Microsoft Edge，未安装时使用 Google Chrome
+- 使用独立的 `workspace/browser_profile` 和仅限本机的 CDP
+- 与 Windows V1.1 共用账号身份、全量历史笔记、单篇数据、阶段数据、SQLite、Snapshot 和 Public Skill 导出逻辑
+- 提供可执行的 `启动内容运营数据同步工具.command` 和 Gatekeeper 安全打开说明
+- GitHub Actions 在 Apple Silicon macOS runner 上测试、构建并上传产物
+
 ## v1.1.0
 
 ### Local Data Connector for Windows

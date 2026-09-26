@@ -1,0 +1,49 @@
+name: Build macOS arm64 Connector
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'browser/**'
+      - 'collectors/**'
+      - 'exporters/**'
+      - 'parsers/**'
+      - 'schemas/**'
+      - 'storage/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'package.json'
+      - '.github/workflows/build-macos.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify Apple Silicon runner
+        run: |
+          test "$(uname -m)" = "arm64"
+          test "$(node -p process.platform)" = "darwin"
+          test "$(node -p process.arch)" = "arm64"
+      - name: Install and test
+        run: |
+          npm install --ignore-scripts
+          npm run check
+      - name: Build and validate macOS package
+        run: |
+          npm run build:mac
+          npm run accept:mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: content-operator-local-data-connector-macos-arm64-v1.0.0
+          path: dist/content-operator-local-data-connector-macos-arm64-v1.0.0.zip
+          if-no-files-found: error
+          retention-days: 30

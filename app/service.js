@@ -1,7 +1,7 @@
 const crypto = require('node:crypto');
 const path = require('node:path');
 const { CdpSession } = require('../browser/cdp');
-const { DedicatedBrowser } = require('../browser/edge');
+const { DedicatedBrowser } = require('../browser/platform_browser');
 const { collectIdentity } = require('../collectors/identity');
 const { collectAccount } = require('../collectors/account');
 const { collectNotes } = require('../collectors/notes');

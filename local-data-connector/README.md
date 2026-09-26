@@ -1,12 +1,14 @@
 # Local Data Connector for Windows
 
-这是 Content Operator Skill 的可选本地数据同步工具，Windows 版本为 `1.1.0`。
+这是 Content Operator Skill 的可选本地数据同步工具，Windows 版本为 `1.1.0`，macOS Apple Silicon 版本为 `1.0.0`。
 
-它使用独立的 Microsoft Edge Profile。用户本人完成登录、扫码、密码和验证码操作，然后主动同步本人有权查看的账号信息、历史笔记、单篇笔记数据和阶段数据。数据写入本地 SQLite 与 Snapshot，并可导出为 Public Skill 可读取的数据包。
+它使用独立的 Edge 或 Chrome Profile。用户本人完成登录、扫码、密码和验证码操作，然后主动同步本人有权查看的账号信息、历史笔记、单篇笔记数据和阶段数据。数据写入本地 SQLite 与 Snapshot，并可导出为 Public Skill 可读取的数据包。
 
 ## 下载和使用
 
 普通用户请从 GitHub Releases 下载 `content-operator-local-data-connector-windows-x64-v1.1.0.zip`，完整解压后双击 `启动内容运营数据同步工具.cmd`。
+
+Apple Silicon Mac 用户下载 `content-operator-local-data-connector-macos-arm64-v1.0.0.zip`，完整解压后双击 `启动内容运营数据同步工具.command`。支持 M1、M2、M3、M4；详细步骤见 [Mac 使用指南](../docs/Mac使用指南.md)。
 
 V1.1 的“同步历史笔记”会自动打开笔记管理页，优先读取页面自身正常发出的 Network/API JSON，并在需要时通过真实滚动容器和页面滚动补齐 DOM 数据。两路结果按 `note_id` 合并，不要求用户逐篇打开笔记。
 

@@ -1,3 +1,4 @@
+const fs = require('node:fs');
 const path = require('node:path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -8,7 +9,7 @@ function workspacePath() {
 
 module.exports = {
   APP_NAME: '内容运营本地数据同步工具',
-  APP_VERSION: '1.0.0',
+  APP_VERSION: fs.readFileSync(path.join(PROJECT_ROOT, 'VERSION'), 'utf8').trim(),
   PROJECT_ROOT,
   workspacePath,
 };

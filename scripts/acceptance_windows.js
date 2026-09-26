@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
-const { reservePort } = require('../browser/edge');
+const { reservePort } = require('../browser/chromium');
 
 const root = path.resolve(__dirname, '..');
 const packageName = 'content-operator-local-data-connector-windows-x64-v1.1.0';
@@ -70,7 +70,7 @@ async function main() {
     child = spawn(runtime, [path.join(extractedRoot, 'app', 'server.js')], { env: environment, stdio: 'ignore', windowsHide: true });
     const status = await waitForStatus(acceptancePort);
     results.packaged_local_server = status.database?.healthy && status.browser?.connected === false ? 'PASS' : 'FAIL';
-    const { findEdge } = require(path.join(extractedRoot, 'browser', 'edge.js'));
+    const { findEdge } = require(path.join(extractedRoot, 'browser', 'windows_browser.js'));
     results.edge_detected = findEdge() ? 'PASS' : 'FAIL';
   } finally {
     if (child && child.exitCode === null) {

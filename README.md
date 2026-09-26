@@ -20,7 +20,7 @@
 
 ### Local Data Connector
 
-[Local Data Connector](local-data-connector/) 是可选工具，当前 Windows 版为 `1.1.0`。V1.1 使用创作者中心正常登录态下的 Network/API 列表数据，并以增强的 DOM 滚动采集作为回退。它的流程是：
+[Local Data Connector](local-data-connector/) 是可选工具，当前 Windows 版为 `1.1.0`，macOS Apple Silicon 版为 `1.0.0`。两个平台共用同一套采集、身份校验、SQLite、Snapshot 和导出逻辑。历史笔记同步使用创作者中心正常登录态下的 Network/API 列表数据，并以增强的 DOM 滚动采集作为回退。它的流程是：
 
 ```text
 用户本人手动登录自己的账号
@@ -53,11 +53,12 @@
 ## 数据同步工具怎么用
 
 ```text
-下载 Windows 数据同步工具
+下载对应平台的数据同步工具
 ↓
 完整解压 ZIP
 ↓
-双击“启动内容运营数据同步工具.cmd”
+Windows 双击 `启动内容运营数据同步工具.cmd`
+Mac 双击 `启动内容运营数据同步工具.command`
 ↓
 点击“启动专属浏览器”
 ↓
@@ -87,6 +88,7 @@
 
 - `content-operator-skill-public-v1.zip`
 - `content-operator-local-data-connector-windows-x64-v1.1.0.zip`
+- `content-operator-local-data-connector-macos-arm64-v1.0.0.zip`
 - `content-operator-skill-user-guide.md`
 
 Windows Connector v1.0.0 的历史 SHA256：

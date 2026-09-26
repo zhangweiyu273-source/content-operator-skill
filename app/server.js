@@ -2,9 +2,9 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
 const { ConnectorService } = require('./service');
 const { APP_NAME, workspacePath } = require('./config');
+const { openLocalUrl } = require('./platform_open');
 
 const STATIC = { '/': ['index.html', 'text/html; charset=utf-8'], '/app.js': ['app.js', 'text/javascript; charset=utf-8'], '/style.css': ['style.css', 'text/css; charset=utf-8'] };
 
@@ -56,10 +56,7 @@ if (require.main === module) {
   server.listen(port, '127.0.0.1', () => {
     const url = `http://127.0.0.1:${port}`;
     console.log(`${APP_NAME} 已启动：${url}`);
-    if (process.env.CONNECTOR_OPEN_UI === '1') {
-      const opener = spawn('explorer.exe', [url], { detached: true, stdio: 'ignore', windowsHide: true });
-      opener.unref();
-    }
+    if (process.env.CONNECTOR_OPEN_UI === '1') openLocalUrl(url);
   });
   const shutdown = () => server.close(() => { service.close(); process.exit(0); });
   process.on('SIGINT', shutdown); process.on('SIGTERM', shutdown);

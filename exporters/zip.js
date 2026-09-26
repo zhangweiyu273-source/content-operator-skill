@@ -21,6 +21,7 @@ function createZip(destination, entries) {
     if (!entry.name || entry.name.startsWith('/') || entry.name.includes('\\') || /[\u0000-\u001f]/.test(entry.name) || segments.includes('..')) throw new Error('ZIP_ENTRY_NAME_INVALID');
     const name = Buffer.from(entry.name, 'utf8');
     const data = Buffer.isBuffer(entry.data) ? entry.data : Buffer.from(entry.data);
+    const mode = Number.isInteger(entry.mode) ? entry.mode : 0o100644;
     const checksum = crc32(data);
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(20, 4); local.writeUInt16LE(0x800, 6);
@@ -28,10 +29,10 @@ function createZip(destination, entries) {
     local.writeUInt32LE(data.length, 22); local.writeUInt16LE(name.length, 26);
     localParts.push(local, name, data);
     const central = Buffer.alloc(46);
-    central.writeUInt32LE(0x02014b50, 0); central.writeUInt16LE(20, 4); central.writeUInt16LE(20, 6);
+    central.writeUInt32LE(0x02014b50, 0); central.writeUInt16LE(0x0314, 4); central.writeUInt16LE(20, 6);
     central.writeUInt16LE(0x800, 8); central.writeUInt16LE(0, 10); central.writeUInt32LE(checksum, 16);
     central.writeUInt32LE(data.length, 20); central.writeUInt32LE(data.length, 24); central.writeUInt16LE(name.length, 28);
-    central.writeUInt32LE(offset, 42); centralParts.push(central, name);
+    central.writeUInt32LE(((mode & 0xffff) << 16) >>> 0, 38); central.writeUInt32LE(offset, 42); centralParts.push(central, name);
     offset += local.length + name.length + data.length;
   }
   const centralData = Buffer.concat(centralParts);
